@@ -86,6 +86,7 @@ def topFileset(pop=False):
 # Live file list built from the top fileset. 
 def topFiles(pop=False):
   fileset = topFileset(pop=pop)
+  if not fileset: return []
   exclude = [f[1:] for f in fileset if f[0] == '-']
   include = [f[1:] for f in fileset if f[0] == '+']
   files = []
@@ -107,6 +108,9 @@ def addDir(d, files=None, exclude=None):
 
 def popAndApplyToFileset(fn):
   files = topFiles(pop=True)
+  if not files:
+    print "No files"
+    return
   for f in files:
     (dirTree, filename) = os.path.split(f[1])
     if dirTree and not os.path.exists(dirTree): os.makedirs(dirTree)
@@ -117,7 +121,11 @@ def popAndCopyFileset(): popAndApplyToFileset(shutil.copyfile)
 def popAndMoveFileset(): popAndApplyToFileset(shutil.move)
 
 def showFileset():
-  for f in topFiles(): print f[0]
+  files = topFiles()
+  if not files:
+    print "No files"
+    return
+  for f in files: print f[0]
 
 # main
 # ====
