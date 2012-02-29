@@ -79,7 +79,9 @@ def excludeFilelist(filelist):
 # Same format as user input. 
 def topFileset(pop=False):
   stack = readStack()
-  return stack[-1] if stack else None
+  top = stack[-1] if stack else None
+  if pop: writeStack(stack[:-1])
+  return top
 
 # Live file list built from the top fileset. 
 def topFiles(pop=False):
