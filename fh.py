@@ -32,6 +32,7 @@ def readStack():
   for line in f:
     if line == "===\n":
       stack.append(fileset)
+      fileset = []
       continue
     fileset.append(eval(line))
   f.close()
@@ -48,34 +49,31 @@ def showUsageAndExit(exitCode):
   print __doc__
   exit(exitCode)
 
-# TODO rename this mofo
-# prepend every string with a character
-def preChar(paths, ch):
+def makeFileset(paths, ch):
   return map(pathEntry(ch), paths)
-  #return [ch + os.path.abspath(p) for p in paths]
 
 def pathEntry(ch):
   return lambda p: (ch, os.path.abspath(p), p)
 
-def pushNewFileset(fileset):
+def pushNewFilelist(filelist):
   stack = readStack()
-  stack.insert(0, preChar(fileset, '+'))
+  stack.insert(0, makeFileset(filelist, '+'))
   writeStack(stack)
 
-def addFileset(fileset):
+def addFilelist(filelist):
   stack = readStack()
   if not stack:
-    pushNewFileset(fileset)
+    pushNewFilelist(filelist)
     return
-  stack[-1] += preChar(fileset, '+')
+  stack[-1] += makeFileset(filelist, '+')
   writeStack(stack)
 
-def excludeFileset(fileset):
+def excludeFilelist(filelist):
   stack = readStack()
   if not stack:
     # TODO
     raise Exception('ruh roh')
-  stack[-1] += preChar(fileset, '-')
+  stack[-1] += makeFileset(filelist, '-')
   writeStack(stack)
 
 # Same format as user input. 
@@ -105,18 +103,19 @@ def addDir(d, files=None, exclude=None):
     else:
       files.append(f)
 
-def popAndCopyFileset():
+def popAndApplyToFileset(fn):
   files = topFiles(pop=True)
   for f in files:
     (dirTree, filename) = os.path.split(f[1])
     if dirTree and not os.path.exists(dirTree): os.makedirs(dirTree)
-    shutil.copyfile(f[0], f[1])
+    fn(f[0], f[1])  # fn will either be copy or move
 
-def popAndMoveFileset():
-  pass
+def popAndCopyFileset(): popAndApplyToFileset(shutil.copyfile)
+
+def popAndMoveFileset(): popAndApplyToFileset(shutil.move)
 
 def showFileset():
-  pass
+  for f in topFiles(): print f[0]
 
 # main
 # ====
@@ -124,13 +123,13 @@ def showFileset():
 if len(sys.argv) < 2: showUsageAndExit(2)
 
 actionStr = sys.argv[1]
-fileset = sys.argv[2:]
+filelist = sys.argv[2:]
 if actionStr == "=":
-  pushNewFileset(fileset)
+  pushNewFilelist(filelist)
 elif actionStr == "+":
-  addFileset(fileset)
+  addFilelist(filelist)
 elif actionStr == "-":
-  excludeFileset(fileset)
+  excludeFilelist(filelist)
 elif actionStr == "cp":
   popAndCopyFileset()
 elif actionStr == "mv":
