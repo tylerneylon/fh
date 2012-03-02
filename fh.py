@@ -49,6 +49,18 @@ def showUsageAndExit(exitCode):
   print __doc__
   exit(exitCode)
 
+# TODO NEXT:
+# If I execute "fh - code/imghist" now, it excludes
+# all paths starting with (path)/code/imghist, which
+# could include files and dirs with that prefix, even
+# though there is a single dir called exactly imghist
+# at that location.  This is a slightly ambiguous
+# situation, but I think the best interpretation is
+# to act more like ls and treat that as specifying just
+# the single dir.  If they want to exclude more, they
+# can type imghist*.  Fix that, and test accordingly.
+# After that I could add some unit tests run via "fh test".
+
 def makeFileset(paths, ch):
   return map(pathEntry(ch), paths)
 
@@ -71,8 +83,8 @@ def addFilelist(filelist):
 def excludeFilelist(filelist):
   stack = readStack()
   if not stack:
-    # TODO
-    raise Exception('ruh roh')
+    print "Error: no file list to exclude from"
+    exit(1)
   stack[-1] += makeFileset(filelist, '-')
   writeStack(stack)
 
@@ -146,4 +158,5 @@ elif actionStr == "mv":
   popAndMoveFileset()
 elif actionStr == "ls":
   showFileset()
-
+elif actionStr == "clearall":
+  writeStack([])
