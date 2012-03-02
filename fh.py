@@ -9,6 +9,8 @@ Usage: fh [_](=|+|-|cp|mv|ls) [file list]
 # TODO
 # * Disallow ".." as a dirname in any given file, unless it's added flattened.
 #   Because that doesn't fit the purpose of fh, plus it will confuse os.makedirs.
+#   Edit: Maybe allow ".." but just disallow adding files above the
+#   current directory.
 
 # imports
 # =======
@@ -50,22 +52,15 @@ def showUsageAndExit(exitCode):
   exit(exitCode)
 
 # TODO NEXT:
-# If I execute "fh - code/imghist" now, it excludes
-# all paths starting with (path)/code/imghist, which
-# could include files and dirs with that prefix, even
-# though there is a single dir called exactly imghist
-# at that location.  This is a slightly ambiguous
-# situation, but I think the best interpretation is
-# to act more like ls and treat that as specifying just
-# the single dir.  If they want to exclude more, they
-# can type imghist*.  Fix that, and test accordingly.
+# Make fh ls give short results by default.
+# Then fh ls --all can list all files.
 # After that I could add some unit tests run via "fh test".
 
 def makeFileset(paths, ch):
   return map(pathEntry(ch), paths)
 
 def pathEntry(ch):
-  return lambda p: (ch, os.path.abspath(p), p)
+  return lambda p: (ch, os.path.abspath(p) + (os.sep if os.path.isdir(p) else ""), p)
 
 def pushNewFilelist(filelist):
   stack = readStack()
@@ -111,7 +106,7 @@ def topFiles(pop=False):
 
 def addDir(d, files=None, exclude=None):
   for f in os.listdir(d[0]):
-    f = tuple(map(lambda x: x + os.sep + f, d))
+    f = tuple(map(lambda x: os.path.join(x, f), d))
     if any([f[0].startswith(e[0]) for e in exclude]): continue
     if os.path.isdir(f[0]):
       addDir(f, files=files, exclude=exclude)
