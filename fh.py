@@ -71,7 +71,9 @@ def pathEntry(p, ch):
 
 def pushNewFilelist(filelist):
   stack = readStack()
-  stack.insert(0, makeFileset(filelist, '+'))
+  newFileset = makeFileset(filelist, '+')
+  if not newFileset: print "Warning: Empty fileset created."
+  stack.append(newFileset)
   writeStack(stack)
 
 def addFilelist(filelist):
@@ -138,20 +140,21 @@ def listFiles(args):
     if not files: nofiles()
     for f in files: print f[0]
     return
-  fileset = topFileset()
-  if not fileset: nofiles()
+  printFileset(topFileset())
+
+def printFileset(fileset, noexit=False):
+  if not fileset: nofiles(noexit=noexit)
   for f in fileset:
     if f[0] == '+':
-      print "+  %s" % f[1]
-      spaces = f[1].rfind(f[2]) if f[2] != '.' else len(f[1])
+      print "+  %s" % f[1],
       relPath = f[2] if f[2] != '.' else '*'
-      print " > " + ' ' * spaces + relPath
+      print "as " + relPath
     elif f[0] == '-':
       print "-  %s" % f[1]
 
-def nofiles():
+def nofiles(noexit=False):
   print "No files"
-  exit(0)
+  if not noexit: exit(0)
 
 def argsAndFilelist(allargs):
   args, filelist = [], []
@@ -165,6 +168,18 @@ def argsAndFilelist(allargs):
     else:
       filelist.append(a)
   return args, filelist
+
+# debug
+# =====
+
+def printStack(stack):
+  if not stack:
+    print "empty"
+    return
+  for fs in stack:
+    printFileset(fs, noexit=True)
+    print "==="
+
 
 # main
 # ====

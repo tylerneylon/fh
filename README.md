@@ -10,7 +10,7 @@ between them easily.  The examples below explain its functionality.
 
 # Examples
 
-## Multiple directories
+## Copying from multiple directories
 
 ```bash
 ~/path/one$ fh = .  # Select all files in this directory.
@@ -18,6 +18,11 @@ between them easily.  The examples below explain its functionality.
 ~/path/two$ fh + foo* *.png  # Also select matching files.
 ~/path/two$ cd ../foo
 ~/path/two$ fh ls  # Print out what was selected.
++  /Users/tylerneylon/path/one/ as *
++  /Users/tylerneylon/path/two/foo1 as foo1
++  /Users/tylerneylon/path/two/foo2 as foo2
++  /Users/tylerneylon/path/two/1.png as 1.png
++  /Users/tylerneylon/path/two/2.png as 2.png
 ~/path/foo$ fh cp  # Copy those files here.
 ```
 
@@ -29,9 +34,9 @@ file exclusion (the - action).
 
 (todo: fill out other examples)
 
-## Excluding subsets
+## Recursive dir copying, excluding subsets
 
-## Multiple windows
+## Use from multiple terminal windows
 
 ## Use in bash scripts
 
