@@ -6,7 +6,7 @@ between them easily.  The examples below explain its functionality.
 # Installing
 
     $ git clone git@github.com:tylerneylon/fh.git
-    $ sudo ls -s fh/fh.py /usr/local/bin/fh
+    $ sudo ln -s fh/fh.py /usr/local/bin/fh
 
 # Examples
 
