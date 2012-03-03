@@ -32,13 +32,59 @@ the directory, including everything recursively.
 Non-obvious file sets can be expressed using
 file exclusion (the - action).
 
-(todo: fill out other examples)
-
 ## Recursive dir copying, excluding subsets
+
+Suppose we want to copy most of a directory over,
+but not all of it:
+
+```bash
+$ fh = mydir
+$ fh - mydir/.git  # Exclude the .git subdirectory.
+$ cp ~/destination/
+$ fh cp  # Copies over mydir less .git.
+```
+
+Exclusions work by omitting everything whose absolute
+path has a prefix that you've excluded.  In effect, the
+"shadow" of an excluded directory cannot be editing within
+a single fh fileset, although the fileset itself may have
+arbitrary _inclusions_, and is easily compatible with bash's
+built-in glob syntax (the `foo*` synatx) and tab completion.
 
 ## Use from multiple terminal windows
 
+Suppose you have three terminal windows open,
+and execute each of these commands in a separate window:
+
+```bash
+(window 1) ~/a/b/c$ fh = file1 file2 dir1
+```
+
+```bash
+(window 2) ~/d/e/f$ fh + file3 dir2 dir3
+```
+
+```bash
+(window 3) ~/g/h/i$ fh mv
+```
+
+Then file{1,2,3} and dir{1,2,3} will all be moved,
+including everything recursively in the directories,
+to `~/g/h/i`.
+
 ## Use in bash scripts
+
+Suppose two bash scripts both start with `fh = X`
+and end with `fh [cp|mv]`.  They can still call
+each other and work correctly.  In the standard
+GUI cut-and-paste model, any new copied/cut selection
+erases the old one, but fh keeps around a stack
+of filesets, so that nested filesets (pushed via
+the = action) will be remembered and act as
+expected.
+
+The stack of filesets are stored in the text file
+`~/.fhstack`.
 
 # Command overview
 
