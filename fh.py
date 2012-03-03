@@ -4,7 +4,7 @@
 #
 # TODO Add _* functionality (destination has a flattened file structure).
 """
-Usage: fh _(=|+|-|cp|mv|ls) [file list]
+Usage: fh (=|+|-|cp|mv|ls) [file list]
 
   =      push a new fileset onto fh's stack
   +      add files to the current fileset
