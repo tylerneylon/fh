@@ -6,12 +6,6 @@
 Usage: fh [_](=|+|-|cp|mv|ls) [file list]
 """
 
-# TODO
-# * Disallow ".." as a dirname in any given file, unless it's added flattened.
-#   Because that doesn't fit the purpose of fh, plus it will confuse os.makedirs.
-#   Edit: Maybe allow ".." but just disallow adding files above the
-#   current directory.
-
 # imports
 # =======
 
@@ -51,16 +45,18 @@ def showUsageAndExit(exitCode):
   print __doc__
   exit(exitCode)
 
-# TODO NEXT:
-# Make fh ls give short results by default.
-# Then fh ls --all can list all files.
-# After that I could add some unit tests run via "fh test".
-
 def makeFileset(paths, ch):
-  return map(pathEntry(ch), paths)
+  return [pathEntry(p, ch) for p in paths]
 
-def pathEntry(ch):
-  return lambda p: (ch, os.path.abspath(p) + (os.sep if os.path.isdir(p) else ""), p)
+def pathEntry(p, ch):
+  absPath = os.path.abspath(p)
+  # Make sure directories end with /
+  if os.path.isdir(p) and not p.endswith(os.sep): absPath += os.sep
+  relPath = os.path.relpath(p)
+  if relPath.startswith('..'):
+    print "Paths can't be outside this directory (%s)" % relPath
+    exit(1)
+  return (ch, absPath, relPath)
 
 def pushNewFilelist(filelist):
   stack = readStack()
@@ -115,9 +111,7 @@ def addDir(d, files=None, exclude=None):
 
 def popAndApplyToFileset(fn):
   files = topFiles(pop=True)
-  if not files:
-    print "No files"
-    return
+  if not files: nofiles()
   for f in files:
     (dirTree, filename) = os.path.split(f[1])
     if dirTree and not os.path.exists(dirTree): os.makedirs(dirTree)
@@ -130,18 +124,23 @@ def popAndMoveFileset(): popAndApplyToFileset(shutil.move)
 def listFiles(args):
   if args and args[0] == '--all':
     files = topFiles()
-    if not files:
-      print "No files"
-    else:
-      for f in files: print f[0]
+    if not files: nofiles()
+    for f in files: print f[0]
     return
   fileset = topFileset()
+  if not fileset: nofiles()
   for f in fileset:
     if f[0] == '+':
       print "+  %s" % f[1]
-      print " > " + ' ' * f[1].rfind(f[2]) + f[2]
+      spaces = f[1].rfind(f[2]) if f[2] != '.' else len(f[1])
+      relPath = f[2] if f[2] != '.' else '*'
+      print " > " + ' ' * spaces + relPath
     elif f[0] == '-':
       print "-  %s" % f[1]
+
+def nofiles():
+  print "No files"
+  exit(0)
 
 def argsAndFilelist(allargs):
   args, filelist = [], []
