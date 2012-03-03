@@ -2,8 +2,18 @@
 #
 # fh.py
 #
+# TODO Add _* functionality (destination has a flattened file structure).
 """
-Usage: fh [_](=|+|-|cp|mv|ls) [file list]
+Usage: fh _(=|+|-|cp|mv|ls) [file list]
+
+  =      push a new fileset onto fh's stack
+  +      add files to the current fileset
+  -      exclude files from the current fileset
+  cp     copy the current fileset to . and pop it from fh's stack
+  mv     move the current fileset to . and pop it from fh's stack
+  ls     list the current fileset
+
+See https://github.com/tylerneylon/fh for more info.
 """
 
 # imports
@@ -42,7 +52,8 @@ def writeStack(stack):
   stackFile.close()
 
 def showUsageAndExit(exitCode):
-  print __doc__
+  execName = os.path.basename(sys.argv[0])
+  print __doc__.replace('fh', execName, 1)
   exit(exitCode)
 
 def makeFileset(paths, ch):
@@ -158,30 +169,31 @@ def argsAndFilelist(allargs):
 # main
 # ====
 
-if len(sys.argv) < 2: showUsageAndExit(2)
+if __name__ == '__main__':
+  if len(sys.argv) < 2: showUsageAndExit(2)
 
-acceptedArgs = {'ls':['--all']}
+  acceptedArgs = {'ls':['--all']}
 
-action = sys.argv[1]
-args, filelist = argsAndFilelist(sys.argv[2:])
-okArgs = [a in acceptedArgs.get(action, []) for a in args]
-if not all(okArgs):
-  print "%s is not a valid option for %s" % (args[okArgs.index(False)], action)
-  exit(1)
-if action == "=":
-  pushNewFilelist(filelist)
-elif action == "+":
-  addFilelist(filelist)
-elif action == "-":
-  excludeFilelist(filelist)
-elif action == "cp":
-  popAndCopyFileset()
-elif action == "mv":
-  popAndMoveFileset()
-elif action == "ls":
-  listFiles(args)
-elif action == "clearall":
-  writeStack([])
-else:
-  print "%s not recognized" % action
-  exit(1)
+  action = sys.argv[1]
+  args, filelist = argsAndFilelist(sys.argv[2:])
+  okArgs = [a in acceptedArgs.get(action, []) for a in args]
+  if not all(okArgs):
+    print "%s is not a valid option for %s" % (args[okArgs.index(False)], action)
+    exit(1)
+  if action == "=":
+    pushNewFilelist(filelist)
+  elif action == "+":
+    addFilelist(filelist)
+  elif action == "-":
+    excludeFilelist(filelist)
+  elif action == "cp":
+    popAndCopyFileset()
+  elif action == "mv":
+    popAndMoveFileset()
+  elif action == "ls":
+    listFiles(args)
+  elif action == "clearall":
+    writeStack([])
+  else:
+    print "%s not recognized" % action
+    exit(1)
