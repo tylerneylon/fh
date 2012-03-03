@@ -127,31 +127,62 @@ def popAndCopyFileset(): popAndApplyToFileset(shutil.copyfile)
 
 def popAndMoveFileset(): popAndApplyToFileset(shutil.move)
 
-def showFileset():
-  files = topFiles()
-  if not files:
-    print "No files"
+def listFiles(args):
+  if args and args[0] == '--all':
+    files = topFiles()
+    if not files:
+      print "No files"
+    else:
+      for f in files: print f[0]
     return
-  for f in files: print f[0]
+  fileset = topFileset()
+  for f in fileset:
+    if f[0] == '+':
+      print "+  %s" % f[1]
+      print " > " + ' ' * f[1].rfind(f[2]) + f[2]
+    elif f[0] == '-':
+      print "-  %s" % f[1]
+
+def argsAndFilelist(allargs):
+  args, filelist = [], []
+  takingArgs = True
+  for a in allargs:
+    if a.startswith('--') and takingArgs:
+      if a == '--':
+        takingArgs = False
+      else:
+        args.append(a)
+    else:
+      filelist.append(a)
+  return args, filelist
 
 # main
 # ====
 
 if len(sys.argv) < 2: showUsageAndExit(2)
 
-actionStr = sys.argv[1]
-filelist = sys.argv[2:]
-if actionStr == "=":
+acceptedArgs = {'ls':['--all']}
+
+action = sys.argv[1]
+args, filelist = argsAndFilelist(sys.argv[2:])
+okArgs = [a in acceptedArgs.get(action, []) for a in args]
+if not all(okArgs):
+  print "%s is not a valid option for %s" % (args[okArgs.index(False)], action)
+  exit(1)
+if action == "=":
   pushNewFilelist(filelist)
-elif actionStr == "+":
+elif action == "+":
   addFilelist(filelist)
-elif actionStr == "-":
+elif action == "-":
   excludeFilelist(filelist)
-elif actionStr == "cp":
+elif action == "cp":
   popAndCopyFileset()
-elif actionStr == "mv":
+elif action == "mv":
   popAndMoveFileset()
-elif actionStr == "ls":
-  showFileset()
-elif actionStr == "clearall":
+elif action == "ls":
+  listFiles(args)
+elif action == "clearall":
   writeStack([])
+else:
+  print "%s not recognized" % action
+  exit(1)
