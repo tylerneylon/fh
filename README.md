@@ -40,7 +40,7 @@ but not all of it:
 ```bash
 $ fh = mydir
 $ fh - mydir/.git  # Exclude the .git subdirectory.
-$ cp ~/destination/
+$ cd ~/destination/
 $ fh cp  # Copies over mydir less .git.
 ```
 
