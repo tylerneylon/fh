@@ -3,6 +3,16 @@
 # fh.py
 #
 # TODO Add _* functionality (destination has a flattened file structure).
+# Note: I think =_ may be better than _= for the obscure reason that I
+#       could then make my commands work without having to type fh first.
+#       If I type _= something into the shell, it seems to interpret it
+#       as setting the variable $_ (I think?).
+#
+# Wishlist (see also a Pages document I have):
+# [ ] Be able to easily repeat the last cp/mv action.
+# [ ] to undo the last action
+#
+
 """
 Usage: fh (=|+|-|cp|mv|ls|diff) [file list]
 
