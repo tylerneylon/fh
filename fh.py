@@ -4,7 +4,7 @@
 #
 # TODO Add _* functionality (destination has a flattened file structure).
 """
-Usage: fh (=|+|-|cp|mv|ls) [file list]
+Usage: fh (=|+|-|cp|mv|ls|diff) [file list]
 
   =      push a new fileset onto fh's stack
   +      add files to the current fileset
@@ -12,6 +12,7 @@ Usage: fh (=|+|-|cp|mv|ls) [file list]
   cp     copy the current fileset to . and pop it from fh's stack
   mv     move the current fileset to . and pop it from fh's stack
   ls     list the current fileset
+  diff   diff the current fileset against . (fileset stays active on fh's stack)
 
 See https://github.com/tylerneylon/fh for more info.
 """
@@ -152,6 +153,14 @@ def printFileset(fileset, noexit=False):
     elif f[0] == '-':
       print "-  %s" % f[1]
 
+def diffFiles():
+  files = topFiles(pop=False)
+  if not files: nofiles()
+  for f in files:
+    cmd = 'diff -s "%s" "%s"' % (f[0], f[1])
+    print('\n=== %s ===' % os.path.basename(f[1]))
+    os.system(cmd)
+
 def nofiles(noexit=False):
   print "No files"
   if not noexit: exit(0)
@@ -207,6 +216,8 @@ if __name__ == '__main__':
     popAndMoveFileset()
   elif action == "ls":
     listFiles(args)
+  elif action == "diff":
+    diffFiles()
   elif action == "clearall":
     writeStack([])
   else:
