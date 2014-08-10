@@ -22,7 +22,7 @@ Usage: fh (=|+|-|cp|mv|ls|diff) [file list]
   cp     copy the current fileset to . and pop it from fh's stack
   mv     move the current fileset to . and pop it from fh's stack
   ls     list the current fileset
-  diff   diff the current fileset against . (fileset stays active on fh's stack)
+  diff   diff . and the current fileset (fileset stays active on fh's stack)
 
 See https://github.com/tylerneylon/fh for more info.
 """
@@ -167,8 +167,8 @@ def diffFiles():
   files = topFiles(pop=False)
   if not files: nofiles()
   for f in files:
-    cmd = 'diff -s "%s" "%s"' % (f[0], f[1])
     print('\n=== %s ===' % os.path.basename(f[1]))
+    cmd = 'diff -s "%s" "%s"' % (f[1], f[0])
     os.system(cmd)
 
 def nofiles(noexit=False):

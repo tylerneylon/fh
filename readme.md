@@ -1,16 +1,20 @@
+# fh
+
+*file helper for shells*
+
 fh, or file helper, adds to the functionality of cp and mv in bash.
 If you regularly move between directories, or have multiple windows
 open to various directories, fh allows you to copy/move files
 between them easily.  The examples below explain its functionality.
 
-# Installing
+## Installing
 
     $ git clone git@github.com:tylerneylon/fh.git
     $ sudo ln -s $(cd fh; pwd)/fh.py /usr/local/bin/fh
 
-# Examples
+## Examples
 
-## Copying from multiple directories
+### Copying from multiple directories
 
 ```bash
 ~/path/one$ fh = .  # Select all files in this directory.
@@ -32,7 +36,7 @@ the directory, including everything recursively.
 Non-obvious file sets can be expressed using
 file exclusion (the - action).
 
-## Recursive dir copying, excluding subsets
+### Recursive dir copying, excluding subsets
 
 Suppose we want to copy most of a directory over,
 but not all of it:
@@ -44,14 +48,14 @@ $ cd ~/destination/
 $ fh cp  # Copies over mydir less .git.
 ```
 
-Exclusions work by omitting everything whose absolute
-path has a prefix that you've excluded.  In effect, the
-"shadow" of an excluded directory cannot be editing within
-a single fh fileset, although the fileset itself may have
-arbitrary _inclusions_, and is easily compatible with bash's
-built-in glob syntax (the `foo*` synatx) and tab completion.
+When you type `fh - <subpath>`, you exclude
+everything in `<current dir>/<subpath>` recursively.
 
-## Use from multiple terminal windows
+You can also specify custom filesets
+using standard bash glob notation, as in
+`fh = a* b* g* m{a,e}*`.
+
+### Use from multiple terminal windows
 
 Suppose you have three terminal windows open,
 and execute each of these commands in a separate window:
@@ -68,7 +72,7 @@ and execute each of these commands in a separate window:
 (window 3) ~/g/h/i$ fh mv
 ```
 
-Then file{1,2,3} and dir{1,2,3} will all be moved,
+Then `file{1,2,3}` and `dir{1,2,3}` will all be moved,
 including everything recursively in the directories,
 to `~/g/h/i`.
 
@@ -84,9 +88,10 @@ the = action) will be remembered and act as
 expected.
 
 The stack of filesets are stored in the text file
-`~/.fhstack`.
+`~/.fhstack`. If you want to reset the state of
+`fh`, you can safely delete this file.
 
-# Command overview
+## Command overview
 
 In general, `fh` is used like this:
 
@@ -94,29 +99,12 @@ In general, `fh` is used like this:
 
 where `action` determines what happens.
 
-<table>
-  <tr>
-    <td> = </td>
-    <td> push a new fileset onto fh's stack </td>
-  </tr>
-  <tr>
-    <td> + </td>
-    <td> add files to the current fileset </td>
-  </tr>
-  <tr>
-    <td> - </td>
-    <td> exclude files from the current fileset </td>
-  </tr>
-  <tr>
-    <td> cp </td>
-    <td> copy the current fileset to . and pop it from fh's stack </td>
-  </tr>
-  <tr>
-    <td> mv </td>
-    <td> move the current fileset to . and pop it from fh's stack </td>
-  </tr>
-  <tr>
-    <td> ls </td>
-    <td> list the current fileset </td>
-  </tr>
-</table>
+action | what it does
+-------|--------------------------------------------------------------
+`=`    | push a new fileset onto fh's stack
+`+`    | add files to the current fileset
+`-`    | exclude files from the current fileset
+`ls`   | list the current fileset
+`cp`   | copy the current fileset to . and pop it from fh's stack
+`mv`   | move the current fileset to . and pop it from fh's stack
+`diff` | diff . with the current fileset (fileset is not popped)
