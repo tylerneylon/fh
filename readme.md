@@ -9,8 +9,8 @@ between them easily.  The examples below explain its functionality.
 
 ## Installing
 
-    $ git clone git@github.com:tylerneylon/fh.git
-    $ sudo ln -s $(cd fh; pwd)/fh.py /usr/local/bin/fh
+    git clone https://github.com/tylerneylon/fh.git
+    sudo ln -s $(cd fh; pwd)/fh.py /usr/local/bin/fh
 
 ## Examples
 
