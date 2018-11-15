@@ -21,6 +21,7 @@ Usage: fh (=|+|-|cp|mv|ls|diff) [file list]
   -      exclude files from the current fileset
   cp     copy the current fileset to . and pop it from fh's stack
   mv     move the current fileset to . and pop it from fh's stack
+  ln     link the current fileset to . and pop it from fh's stack
   ls     list the current fileset
   diff   diff . and the current fileset (fileset stays active on fh's stack)
 
@@ -30,7 +31,7 @@ See https://github.com/tylerneylon/fh for more info.
 # imports
 # =======
 
-import os.path
+import os
 import shutil
 import sys
 
@@ -145,6 +146,8 @@ def popAndCopyFileset(): popAndApplyToFileset(shutil.copyfile)
 
 def popAndMoveFileset(): popAndApplyToFileset(shutil.move)
 
+def popAndLinkFileset(): popAndApplyToFileset(os.link)
+
 def listFiles(args):
   if args and args[0] == '--all':
     files = topFiles()
@@ -224,6 +227,8 @@ if __name__ == '__main__':
     popAndCopyFileset()
   elif action == "mv":
     popAndMoveFileset()
+  elif action == "ln":
+    popAndLinkFileset()
   elif action == "ls":
     listFiles(args)
   elif action == "diff":
