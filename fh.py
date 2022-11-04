@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 # fh.py
 #
@@ -59,13 +59,13 @@ def readStack():
 def writeStack(stack):
   stackFile = open(stackFilename(), 'w')
   for fileset in stack:
-    for f in fileset: stackFile.write("%s\n" % `f`)
+    for f in fileset: stackFile.write("%s\n" % repr(f))
     stackFile.write("===\n")
   stackFile.close()
 
 def showUsageAndExit(exitCode):
   execName = os.path.basename(sys.argv[0])
-  print __doc__.replace('fh', execName, 1)
+  print(__doc__.replace('fh', execName, 1))
   exit(exitCode)
 
 def makeFileset(paths, ch):
@@ -77,14 +77,14 @@ def pathEntry(p, ch):
   if os.path.isdir(p) and not p.endswith(os.sep): absPath += os.sep
   relPath = os.path.relpath(p)
   if relPath.startswith('..'):
-    print "Paths can't be outside this directory (%s)" % relPath
+    print("Paths can't be outside this directory (%s)" % relPath)
     exit(1)
   return (ch, absPath, relPath)
 
 def pushNewFilelist(filelist):
   stack = readStack()
   newFileset = makeFileset(filelist, '+')
-  if not newFileset: print "Warning: Empty fileset created."
+  if not newFileset: print("Warning: Empty fileset created.")
   stack.append(newFileset)
   writeStack(stack)
 
@@ -99,7 +99,7 @@ def addFilelist(filelist):
 def excludeFilelist(filelist):
   stack = readStack()
   if not stack:
-    print "Error: no file list to exclude from"
+    print("Error: no file list to exclude from")
     exit(1)
   stack[-1] += makeFileset(filelist, '-')
   writeStack(stack)
@@ -127,7 +127,7 @@ def topFiles(pop=False):
 
 def addDir(d, files=None, exclude=None):
   for f in os.listdir(d[0]):
-    f = tuple(map(lambda x: os.path.join(x, f), d))
+    f = tuple([os.path.join(x, f) for x in d])
     if any([f[0].startswith(e[0]) for e in exclude]): continue
     if os.path.isdir(f[0]):
       addDir(f, files=files, exclude=exclude)
@@ -152,7 +152,7 @@ def listFiles(args):
   if args and args[0] == '--all':
     files = topFiles()
     if not files: nofiles()
-    for f in files: print f[0]
+    for f in files: print(f[0])
     return
   printFileset(topFileset())
 
@@ -160,22 +160,22 @@ def printFileset(fileset, noexit=False):
   if not fileset: nofiles(noexit=noexit)
   for f in fileset:
     if f[0] == '+':
-      print "+  %s" % f[1],
+      print("+  %s" % f[1], end=' ')
       relPath = f[2] if f[2] != '.' else '*'
-      print "as " + relPath
+      print("as " + relPath)
     elif f[0] == '-':
-      print "-  %s" % f[1]
+      print("-  %s" % f[1])
 
 def diffFiles():
   files = topFiles(pop=False)
   if not files: nofiles()
   for f in files:
-    print('\n=== %s ===' % os.path.basename(f[1]))
+    print(('\n=== %s ===' % os.path.basename(f[1])))
     cmd = 'diff -s "%s" "%s"' % (f[1], f[0])
     os.system(cmd)
 
 def nofiles(noexit=False):
-  print "No files"
+  print("No files")
   if not noexit: exit(0)
 
 def argsAndFilelist(allargs):
@@ -196,11 +196,11 @@ def argsAndFilelist(allargs):
 
 def printStack(stack):
   if not stack:
-    print "empty"
+    print("empty")
     return
   for fs in stack:
     printFileset(fs, noexit=True)
-    print "==="
+    print("===")
 
 
 # main
@@ -215,7 +215,7 @@ if __name__ == '__main__':
   args, filelist = argsAndFilelist(sys.argv[2:])
   okArgs = [a in acceptedArgs.get(action, []) for a in args]
   if not all(okArgs):
-    print "%s is not a valid option for %s" % (args[okArgs.index(False)], action)
+    print("%s is not a valid option for %s" % (args[okArgs.index(False)], action))
     exit(1)
   if action == "=":
     pushNewFilelist(filelist)
@@ -236,5 +236,5 @@ if __name__ == '__main__':
   elif action == "clearall":
     writeStack([])
   else:
-    print "%s not recognized" % action
+    print("%s not recognized" % action)
     exit(1)
